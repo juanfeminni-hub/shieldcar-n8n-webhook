@@ -1,0 +1,409 @@
+{
+  "name": "ShieldCar - Lead Completo (ManyChat + HubSpot)",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "shieldcar-lead",
+        "options": {},
+        "responseMode": "responseNode",
+        "responseData": "allEntries"
+      },
+      "id": "webhook-node",
+      "name": "Webhook - Receber Lead",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [250, 400],
+      "webhookId": "shieldcar-completo"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "firstname",
+              "value": "={{ $json.body.firstname }}"
+            },
+            {
+              "name": "lastname",
+              "value": "={{ $json.body.lastname }}"
+            },
+            {
+              "name": "nome_completo",
+              "value": "={{ $json.body.firstname }} {{ $json.body.lastname }}"
+            },
+            {
+              "name": "email",
+              "value": "={{ $json.body.email }}"
+            },
+            {
+              "name": "phone",
+              "value": "={{ $json.body.phone }}"
+            },
+            {
+              "name": "telefone_limpo",
+              "value": "={{ $json.body.phone.replace(/\\D/g, '') }}"
+            },
+            {
+              "name": "city",
+              "value": "={{ $json.body.city }}"
+            },
+            {
+              "name": "state",
+              "value": "={{ $json.body.state }}"
+            },
+            {
+              "name": "placa_veiculo",
+              "value": "={{ $json.body.placa_veiculo }}"
+            },
+            {
+              "name": "tipo_veiculo",
+              "value": "={{ $json.body.tipo_veiculo }}"
+            },
+            {
+              "name": "marca_veiculo",
+              "value": "={{ $json.body.marca_veiculo }}"
+            },
+            {
+              "name": "modelo_veiculo",
+              "value": "={{ $json.body.modelo_veiculo }}"
+            },
+            {
+              "name": "ano_veiculo",
+              "value": "={{ $json.body.ano_veiculo }}"
+            },
+            {
+              "name": "veiculo_completo",
+              "value": "={{ $json.body.marca_veiculo }} {{ $json.body.modelo_veiculo }} {{ $json.body.ano_veiculo }}"
+            },
+            {
+              "name": "timestamp",
+              "value": "={{ $now.toFormat('dd/MM/yyyy HH:mm') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "format-data",
+      "name": "Formatar Dados",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [470, 400]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.telefone_limpo }}",
+              "operation": "isNotEmpty"
+            },
+            {
+              "value1": "={{ $json.email }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "validate-data",
+      "name": "Validar Dados",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [690, 400]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "contact",
+        "operation": "upsert",
+        "email": "={{ $json.email }}",
+        "additionalFields": {
+          "customProperties": {
+            "property": [
+              {
+                "name": "firstname",
+                "value": "={{ $json.firstname }}"
+              },
+              {
+                "name": "lastname",
+                "value": "={{ $json.lastname }}"
+              },
+              {
+                "name": "phone",
+                "value": "={{ $json.phone }}"
+              },
+              {
+                "name": "city",
+                "value": "={{ $json.city }}"
+              },
+              {
+                "name": "state",
+                "value": "={{ $json.state }}"
+              },
+              {
+                "name": "placa_veiculo",
+                "value": "={{ $json.placa_veiculo }}"
+              },
+              {
+                "name": "tipo_veiculo",
+                "value": "={{ $json.tipo_veiculo }}"
+              },
+              {
+                "name": "veiculo",
+                "value": "={{ $json.veiculo_completo }}"
+              }
+            ]
+          }
+        }
+      },
+      "id": "hubspot-create-contact",
+      "name": "HubSpot - Criar/Atualizar Contato",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2,
+      "position": [950, 250],
+      "credentials": {
+        "hubspotOAuth2Api": {
+          "id": "CONFIGURE_HUBSPOT_OAUTH",
+          "name": "HubSpot account"
+        }
+      },
+      "notes": "Cria ou atualiza contato no HubSpot"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.manychat.com/fb/subscriber/createSubscriber",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer SEU_MANYCHAT_API_TOKEN"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"phone\": \"+55{{ $json.telefone_limpo }}\",\n  \"first_name\": \"{{ $json.firstname }}\",\n  \"last_name\": \"{{ $json.lastname }}\",\n  \"custom_fields\": [\n    {\n      \"field_name\": \"email\",\n      \"field_value\": \"{{ $json.email }}\"\n    },\n    {\n      \"field_name\": \"cidade\",\n      \"field_value\": \"{{ $json.city }}\"\n    },\n    {\n      \"field_name\": \"estado\",\n      \"field_value\": \"{{ $json.state }}\"\n    },\n    {\n      \"field_name\": \"veiculo\",\n      \"field_value\": \"{{ $json.veiculo_completo }}\"\n    },\n    {\n      \"field_name\": \"placa\",\n      \"field_value\": \"{{ $json.placa_veiculo }}\"\n    },\n    {\n      \"field_name\": \"tipo_veiculo\",\n      \"field_value\": \"{{ $json.tipo_veiculo }}\"\n    }\n  ],\n  \"whatsapp_phone\": \"+55{{ $json.telefone_limpo }}\",\n  \"has_opt_in_sms\": false,\n  \"has_opt_in_email\": true\n}",
+        "options": {}
+      },
+      "id": "manychat-create",
+      "name": "ManyChat - Criar Contato",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [950, 450],
+      "notes": "Cria ou atualiza contato no ManyChat"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.manychat.com/fb/sending/sendContent",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer SEU_MANYCHAT_API_TOKEN"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"subscriber_id\": \"{{ $json.data.id }}\",\n  \"data\": {\n    \"version\": \"v2\",\n    \"content\": {\n      \"messages\": [\n        {\n          \"type\": \"text\",\n          \"text\": \"🚗 *Olá {{ $('Formatar Dados').item.json.firstname }}!*\\n\\nObrigado pelo interesse na *ShieldCar Blumenau*! 🛡️\\n\\nRecebemos seus dados:\\n• Veículo: {{ $('Formatar Dados').item.json.veiculo_completo }}\\n• Placa: {{ $('Formatar Dados').item.json.placa_veiculo }}\\n\\nEm breve um consultor entrará em contato para apresentar as melhores opções de proteção! ⚡\\n\\n📱 Fique à vontade para tirar dúvidas!\"\n        }\n      ]\n    }\n  }\n}",
+        "options": {}
+      },
+      "id": "manychat-welcome",
+      "name": "ManyChat - Mensagem Boas-vindas",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1200, 450],
+      "notes": "Envia mensagem automática para o lead"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.manychat.com/fb/sending/sendContent",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer SEU_MANYCHAT_API_TOKEN"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"subscriber_id\": \"SEU_SUBSCRIBER_ID_EQUIPE\",\n  \"data\": {\n    \"version\": \"v2\",\n    \"content\": {\n      \"messages\": [\n        {\n          \"type\": \"text\",\n          \"text\": \"🚗 *NOVO LEAD - ShieldCar*\\n\\n👤 {{ $('Formatar Dados').item.json.nome_completo }}\\n📱 {{ $('Formatar Dados').item.json.phone }}\\n📧 {{ $('Formatar Dados').item.json.email }}\\n📍 {{ $('Formatar Dados').item.json.city }}/{{ $('Formatar Dados').item.json.state }}\\n\\n🚘 *Veículo:*\\n• {{ $('Formatar Dados').item.json.tipo_veiculo }}\\n• {{ $('Formatar Dados').item.json.veiculo_completo }}\\n• Placa: {{ $('Formatar Dados').item.json.placa_veiculo }}\\n\\n⏰ {{ $('Formatar Dados').item.json.timestamp }}\\n\\n✅ Contato registrado no HubSpot!\"\n        }\n      ]\n    }\n  }\n}",
+        "options": {}
+      },
+      "id": "manychat-notify",
+      "name": "ManyChat - Notificar Equipe",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1200, 650],
+      "notes": "Notifica equipe sobre novo lead"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"message\": \"Lead processado com sucesso\",\n  \"integrations\": {\n    \"hubspot\": \"✅ Contato criado/atualizado\",\n    \"manychat\": \"✅ Contato adicionado + mensagem enviada\"\n  },\n  \"lead\": {\n    \"nome\": \"{{ $('Formatar Dados').item.json.nome_completo }}\",\n    \"email\": \"{{ $('Formatar Dados').item.json.email }}\",\n    \"telefone\": \"{{ $('Formatar Dados').item.json.phone }}\",\n    \"veiculo\": \"{{ $('Formatar Dados').item.json.veiculo_completo }}\"\n  },\n  \"timestamp\": \"{{ $now.toISO() }}\"\n}",
+        "options": {}
+      },
+      "id": "response-success",
+      "name": "Resposta Sucesso",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1450, 400]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseCode": 400,
+        "responseBody": "={\n  \"success\": false,\n  \"message\": \"Dados inválidos - verifique telefone e email\",\n  \"timestamp\": \"{{ $now.toISO() }}\"\n}",
+        "options": {}
+      },
+      "id": "response-error",
+      "name": "Resposta Erro",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [950, 650]
+    }
+  ],
+  "connections": {
+    "Webhook - Receber Lead": {
+      "main": [
+        [
+          {
+            "node": "Formatar Dados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatar Dados": {
+      "main": [
+        [
+          {
+            "node": "Validar Dados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar Dados": {
+      "main": [
+        [
+          {
+            "node": "HubSpot - Criar/Atualizar Contato",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "ManyChat - Criar Contato",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resposta Erro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HubSpot - Criar/Atualizar Contato": {
+      "main": [
+        [
+          {
+            "node": "Resposta Sucesso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ManyChat - Criar Contato": {
+      "main": [
+        [
+          {
+            "node": "ManyChat - Mensagem Boas-vindas",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "ManyChat - Notificar Equipe",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ManyChat - Mensagem Boas-vindas": {
+      "main": [
+        [
+          {
+            "node": "Resposta Sucesso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ManyChat - Notificar Equipe": {
+      "main": [
+        [
+          {
+            "node": "Resposta Sucesso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1",
+  "id": "shieldcar-completo",
+  "meta": {
+    "instanceId": "shieldcar-completo"
+  },
+  "tags": [
+    {
+      "name": "ShieldCar",
+      "id": "shieldcar"
+    },
+    {
+      "name": "ManyChat",
+      "id": "manychat"
+    },
+    {
+      "name": "HubSpot",
+      "id": "hubspot"
+    }
+  ]
+}

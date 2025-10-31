@@ -4,36 +4,59 @@ Webhook permanente para notificações de leads no WhatsApp do grupo ShieldCar B
 
 ## 📦 Workflows Disponíveis
 
-Este projeto oferece **2 workflows** para você escolher:
+Este projeto oferece **3 workflows** para diferentes necessidades:
 
-### 1️⃣ ManyChat (Recomendado) 🤖
+### 🏆 Completo: ManyChat + HubSpot (RECOMENDADO)
+- **Arquivo:** `workflow-shieldcar-completo.json`
+- **Guia completo:** [SETUP-COMPLETO.md](SETUP-COMPLETO.md)
+- **Recursos:**
+  - ✅ **HubSpot:** Cria/atualiza contatos no CRM automaticamente
+  - ✅ **ManyChat:** Mensagem automática de boas-vindas para o lead
+  - ✅ **WhatsApp:** Notificação instantânea para equipe de vendas
+  - ✅ Custom fields em ambas plataformas
+  - ✅ Validação de dados antes de processar
+  - ✅ Respostas adequadas para o formulário
+
+**Use quando:** Você quer gestão completa (CRM + automação WhatsApp)
+
+---
+
+### 🤖 ManyChat (WhatsApp Only)
 - **Arquivo:** `workflow-shieldcar-manychat.json`
 - **Guia completo:** [INTEGRACAO-MANYCHAT.md](INTEGRACAO-MANYCHAT.md)
 - **Recursos:**
   - ✅ Mensagem automática de boas-vindas para o lead
   - ✅ Notificação para equipe de vendas
   - ✅ Gestão de contatos no ManyChat
-  - ✅ Custom fields para segmentação
-  - ✅ Pronto para automações avançadas (flows, chatbots)
+  - ✅ Pronto para flows e chatbots
 
-### 2️⃣ WhatsApp Direto 📱
+**Use quando:** Você só precisa de automação no WhatsApp
+
+---
+
+### 📱 WhatsApp Direto (Simples)
 - **Arquivo:** `workflow-shieldcar-leads.json`
 - **Recursos:**
   - ✅ Envio direto via WhatsApp Business API
-  - ✅ Mais simples, menos configuração
-  - ✅ Ideal se já tiver API configurada
+  - ✅ Configuração mínima
 
-> 💡 **Sugestão:** Use ManyChat se quiser criar flows de follow-up automático e qualificação de leads.
+**Use quando:** Você já tem sua própria API do WhatsApp configurada
+
+---
+
+> 💡 **Nossa Recomendação:** Use o **workflow completo** (ManyChat + HubSpot) para ter gestão total dos seus leads!
 
 ---
 
 ## 🚀 Início Rápido
 
-**Quer começar agora?** → [QUICKSTART.md](QUICKSTART.md) - Guia de 5 minutos!
+**🏆 Setup Completo (ManyChat + HubSpot)?** → [SETUP-COMPLETO.md](SETUP-COMPLETO.md) - **RECOMENDADO**
 
-**Configuração ManyChat completa?** → [INTEGRACAO-MANYCHAT.md](INTEGRACAO-MANYCHAT.md)
+**🤖 Só ManyChat?** → [INTEGRACAO-MANYCHAT.md](INTEGRACAO-MANYCHAT.md)
 
-**Detalhes do deploy?** → Continue lendo abaixo 👇
+**⚡ Quick Start (5 min)?** → [QUICKSTART.md](QUICKSTART.md)
+
+**📚 Detalhes do deploy?** → Continue lendo abaixo 👇
 
 ---
 
