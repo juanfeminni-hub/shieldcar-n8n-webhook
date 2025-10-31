@@ -4,53 +4,66 @@ Webhook permanente para notificações de leads no WhatsApp do grupo ShieldCar B
 
 ## 📦 Workflows Disponíveis
 
-Este projeto oferece **3 workflows** para diferentes necessidades:
+Este projeto oferece **4 workflows** para diferentes necessidades:
 
-### 🏆 Completo: ManyChat + HubSpot (RECOMENDADO)
+### ⭐ V2 - Completo Otimizado (MAIS NOVO - RECOMENDADO)
+- **Arquivo:** `workflow-shieldcar-v2-completo.json`
+- **Guia completo:** [WORKFLOW-V2-GUIA.md](WORKFLOW-V2-GUIA.md)
+- **Recursos:**
+  - ✅ **Validação robusta:** Email, telefone e dados do veículo obrigatórios
+  - ✅ **HubSpot:** Cria/atualiza contatos no CRM
+  - ✅ **ManyChat:** Adiciona subscriber com custom fields
+  - ✅ **WhatsApp Lead:** Mensagem de boas-vindas automática
+  - ✅ **WhatsApp Equipe:** Notificação para grupo/equipe
+  - ✅ **Respostas detalhadas:** Sucesso com confirmação ou erro com detalhes
+  - ✅ **Otimizado para n8n Cloud**
+
+**Use quando:** Você quer o workflow mais completo e atualizado (produção)
+
+---
+
+### 🏆 V1 - Completo: ManyChat + HubSpot
 - **Arquivo:** `workflow-shieldcar-completo.json`
 - **Guia completo:** [SETUP-COMPLETO.md](SETUP-COMPLETO.md)
 - **Recursos:**
-  - ✅ **HubSpot:** Cria/atualiza contatos no CRM automaticamente
-  - ✅ **ManyChat:** Mensagem automática de boas-vindas para o lead
-  - ✅ **WhatsApp:** Notificação instantânea para equipe de vendas
-  - ✅ Custom fields em ambas plataformas
-  - ✅ Validação de dados antes de processar
-  - ✅ Respostas adequadas para o formulário
+  - ✅ HubSpot + ManyChat integrados
+  - ✅ Mensagem automática + notificação equipe
+  - ✅ Validação básica
 
-**Use quando:** Você quer gestão completa (CRM + automação WhatsApp)
+**Use quando:** Você quer a versão V1 (testada e estável)
 
 ---
 
-### 🤖 ManyChat (WhatsApp Only)
+### 🤖 ManyChat Only
 - **Arquivo:** `workflow-shieldcar-manychat.json`
 - **Guia completo:** [INTEGRACAO-MANYCHAT.md](INTEGRACAO-MANYCHAT.md)
 - **Recursos:**
-  - ✅ Mensagem automática de boas-vindas para o lead
-  - ✅ Notificação para equipe de vendas
-  - ✅ Gestão de contatos no ManyChat
-  - ✅ Pronto para flows e chatbots
+  - ✅ Só ManyChat (sem HubSpot)
+  - ✅ Mensagem automática + notificação
 
-**Use quando:** Você só precisa de automação no WhatsApp
+**Use quando:** Você não usa HubSpot
 
 ---
 
-### 📱 WhatsApp Direto (Simples)
+### 📱 WhatsApp Direto (Básico)
 - **Arquivo:** `workflow-shieldcar-leads.json`
 - **Recursos:**
-  - ✅ Envio direto via WhatsApp Business API
+  - ✅ Envio direto via API WhatsApp
   - ✅ Configuração mínima
 
-**Use quando:** Você já tem sua própria API do WhatsApp configurada
+**Use quando:** Você tem sua própria API WhatsApp
 
 ---
 
-> 💡 **Nossa Recomendação:** Use o **workflow completo** (ManyChat + HubSpot) para ter gestão total dos seus leads!
+> 💡 **Nossa Recomendação:** Use o **Workflow V2** - é a versão mais completa, otimizada e atualizada!
 
 ---
 
 ## 🚀 Início Rápido
 
-**🏆 Setup Completo (ManyChat + HubSpot)?** → [SETUP-COMPLETO.md](SETUP-COMPLETO.md) - **RECOMENDADO**
+**⭐ Workflow V2 (MAIS NOVO)?** → [WORKFLOW-V2-GUIA.md](WORKFLOW-V2-GUIA.md) - **RECOMENDADO**
+
+**🏆 Setup Completo V1?** → [SETUP-COMPLETO.md](SETUP-COMPLETO.md)
 
 **🤖 Só ManyChat?** → [INTEGRACAO-MANYCHAT.md](INTEGRACAO-MANYCHAT.md)
 
