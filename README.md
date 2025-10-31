@@ -2,6 +2,41 @@
 
 Webhook permanente para notificações de leads no WhatsApp do grupo ShieldCar Blumenau.
 
+## 📦 Workflows Disponíveis
+
+Este projeto oferece **2 workflows** para você escolher:
+
+### 1️⃣ ManyChat (Recomendado) 🤖
+- **Arquivo:** `workflow-shieldcar-manychat.json`
+- **Guia completo:** [INTEGRACAO-MANYCHAT.md](INTEGRACAO-MANYCHAT.md)
+- **Recursos:**
+  - ✅ Mensagem automática de boas-vindas para o lead
+  - ✅ Notificação para equipe de vendas
+  - ✅ Gestão de contatos no ManyChat
+  - ✅ Custom fields para segmentação
+  - ✅ Pronto para automações avançadas (flows, chatbots)
+
+### 2️⃣ WhatsApp Direto 📱
+- **Arquivo:** `workflow-shieldcar-leads.json`
+- **Recursos:**
+  - ✅ Envio direto via WhatsApp Business API
+  - ✅ Mais simples, menos configuração
+  - ✅ Ideal se já tiver API configurada
+
+> 💡 **Sugestão:** Use ManyChat se quiser criar flows de follow-up automático e qualificação de leads.
+
+---
+
+## 🚀 Início Rápido
+
+**Quer começar agora?** → [QUICKSTART.md](QUICKSTART.md) - Guia de 5 minutos!
+
+**Configuração ManyChat completa?** → [INTEGRACAO-MANYCHAT.md](INTEGRACAO-MANYCHAT.md)
+
+**Detalhes do deploy?** → Continue lendo abaixo 👇
+
+---
+
 ## 🚀 Deploy Rápido no Railway
 
 ### Passo 1: Criar conta no Railway

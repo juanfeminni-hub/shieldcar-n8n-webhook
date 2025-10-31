@@ -1,0 +1,307 @@
+{
+  "name": "ShieldCar - Leads ManyChat",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "shieldcar-lead",
+        "options": {},
+        "responseMode": "responseNode",
+        "responseData": "allEntries"
+      },
+      "id": "webhook-node",
+      "name": "Webhook - Receber Lead",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [250, 300],
+      "webhookId": "shieldcar-manychat"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "nome_completo",
+              "value": "={{ $json.body.firstname }} {{ $json.body.lastname }}"
+            },
+            {
+              "name": "telefone",
+              "value": "={{ $json.body.phone }}"
+            },
+            {
+              "name": "email",
+              "value": "={{ $json.body.email }}"
+            },
+            {
+              "name": "cidade",
+              "value": "={{ $json.body.city }}"
+            },
+            {
+              "name": "estado",
+              "value": "={{ $json.body.state }}"
+            },
+            {
+              "name": "veiculo",
+              "value": "={{ $json.body.marca_veiculo }} {{ $json.body.modelo_veiculo }} {{ $json.body.ano_veiculo }}"
+            },
+            {
+              "name": "placa",
+              "value": "={{ $json.body.placa_veiculo }}"
+            },
+            {
+              "name": "tipo_veiculo",
+              "value": "={{ $json.body.tipo_veiculo }}"
+            },
+            {
+              "name": "timestamp",
+              "value": "={{ $now.toFormat('dd/MM/yyyy HH:mm') }}"
+            },
+            {
+              "name": "telefone_limpo",
+              "value": "={{ $json.body.phone.replace(/\\D/g, '') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "format-data",
+      "name": "Formatar Dados Lead",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [470, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.telefone_limpo }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "check-phone",
+      "name": "Validar Telefone",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [690, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.manychat.com/fb/subscriber/createSubscriber",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer SEU_MANYCHAT_API_TOKEN"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"phone\": \"+55{{ $json.telefone_limpo }}\",\n  \"first_name\": \"{{ $json.nome_completo.split(' ')[0] }}\",\n  \"last_name\": \"{{ $json.nome_completo.split(' ').slice(1).join(' ') }}\",\n  \"custom_fields\": [\n    {\n      \"field_name\": \"email\",\n      \"field_value\": \"{{ $json.email }}\"\n    },\n    {\n      \"field_name\": \"cidade\",\n      \"field_value\": \"{{ $json.cidade }}\"\n    },\n    {\n      \"field_name\": \"estado\",\n      \"field_value\": \"{{ $json.estado }}\"\n    },\n    {\n      \"field_name\": \"veiculo\",\n      \"field_value\": \"{{ $json.veiculo }}\"\n    },\n    {\n      \"field_name\": \"placa\",\n      \"field_value\": \"{{ $json.placa }}\"\n    },\n    {\n      \"field_name\": \"tipo_veiculo\",\n      \"field_value\": \"{{ $json.tipo_veiculo }}\"\n    }\n  ],\n  \"whatsapp_phone\": \"+55{{ $json.telefone_limpo }}\",\n  \"has_opt_in_sms\": false,\n  \"has_opt_in_email\": true\n}",
+        "options": {}
+      },
+      "id": "manychat-create-subscriber",
+      "name": "Criar Contato ManyChat",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [910, 200],
+      "notes": "Cria ou atualiza o contato no ManyChat"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.manychat.com/fb/sending/sendContent",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer SEU_MANYCHAT_API_TOKEN"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"subscriber_id\": \"{{ $json.data.id }}\",\n  \"data\": {\n    \"version\": \"v2\",\n    \"content\": {\n      \"messages\": [\n        {\n          \"type\": \"text\",\n          \"text\": \"🚗 *Olá {{ $('Formatar Dados Lead').item.json.nome_completo.split(' ')[0] }}!*\\n\\nObrigado pelo interesse na *ShieldCar Blumenau*! 🛡️\\n\\nRecebemos seus dados do veículo:\\n• {{ $('Formatar Dados Lead').item.json.veiculo }}\\n• Placa: {{ $('Formatar Dados Lead').item.json.placa }}\\n\\nEm breve um de nossos consultores entrará em contato para apresentar as melhores opções de proteção veicular! ⚡\\n\\n📱 Enquanto isso, fique à vontade para tirar dúvidas por aqui!\"\n        }\n      ]\n    }\n  }\n}",
+        "options": {}
+      },
+      "id": "manychat-send-welcome",
+      "name": "Enviar Mensagem Boas-vindas",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1130, 200],
+      "notes": "Envia mensagem automática para o lead"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.manychat.com/fb/sending/sendContent",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer SEU_MANYCHAT_API_TOKEN"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"subscriber_id\": \"SEU_SUBSCRIBER_ID_EQUIPE\",\n  \"data\": {\n    \"version\": \"v2\",\n    \"content\": {\n      \"messages\": [\n        {\n          \"type\": \"text\",\n          \"text\": \"🚗 *NOVO LEAD - ShieldCar Blumenau*\\n\\n👤 *Cliente:* {{ $('Formatar Dados Lead').item.json.nome_completo }}\\n📱 *Telefone:* {{ $('Formatar Dados Lead').item.json.telefone }}\\n📧 *Email:* {{ $('Formatar Dados Lead').item.json.email }}\\n📍 *Localização:* {{ $('Formatar Dados Lead').item.json.cidade }}/{{ $('Formatar Dados Lead').item.json.estado }}\\n\\n🚘 *Veículo:*\\n• Tipo: {{ $('Formatar Dados Lead').item.json.tipo_veiculo }}\\n• Modelo: {{ $('Formatar Dados Lead').item.json.veiculo }}\\n• Placa: {{ $('Formatar Dados Lead').item.json.placa }}\\n\\n⏰ *Recebido em:* {{ $('Formatar Dados Lead').item.json.timestamp }}\\n\\n✅ *Ação:* Entre em contato em até 2 minutos!\"\n        }\n      ]\n    }\n  }\n}",
+        "options": {}
+      },
+      "id": "manychat-notify-team",
+      "name": "Notificar Equipe",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1130, 400],
+      "notes": "Notifica o grupo/equipe sobre o novo lead"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"message\": \"Lead recebido e processado com sucesso\",\n  \"lead\": {\n    \"nome\": \"{{ $('Formatar Dados Lead').item.json.nome_completo }}\",\n    \"telefone\": \"{{ $('Formatar Dados Lead').item.json.telefone }}\",\n    \"veiculo\": \"{{ $('Formatar Dados Lead').item.json.veiculo }}\"\n  },\n  \"timestamp\": \"{{ $now.toISO() }}\"\n}",
+        "options": {}
+      },
+      "id": "response-success",
+      "name": "Resposta Sucesso",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1350, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseCode": 400,
+        "responseBody": "={\n  \"success\": false,\n  \"message\": \"Telefone inválido ou ausente\",\n  \"timestamp\": \"{{ $now.toISO() }}\"\n}",
+        "options": {}
+      },
+      "id": "response-error",
+      "name": "Resposta Erro",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [910, 400]
+    }
+  ],
+  "connections": {
+    "Webhook - Receber Lead": {
+      "main": [
+        [
+          {
+            "node": "Formatar Dados Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatar Dados Lead": {
+      "main": [
+        [
+          {
+            "node": "Validar Telefone",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar Telefone": {
+      "main": [
+        [
+          {
+            "node": "Criar Contato ManyChat",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resposta Erro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar Contato ManyChat": {
+      "main": [
+        [
+          {
+            "node": "Enviar Mensagem Boas-vindas",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Notificar Equipe",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar Mensagem Boas-vindas": {
+      "main": [
+        [
+          {
+            "node": "Resposta Sucesso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notificar Equipe": {
+      "main": [
+        [
+          {
+            "node": "Resposta Sucesso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1",
+  "id": "shieldcar-manychat",
+  "meta": {
+    "instanceId": "shieldcar-manychat"
+  },
+  "tags": [
+    {
+      "name": "ShieldCar",
+      "id": "shieldcar"
+    },
+    {
+      "name": "ManyChat",
+      "id": "manychat"
+    }
+  ]
+}
