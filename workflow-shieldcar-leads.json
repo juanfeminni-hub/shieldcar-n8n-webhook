@@ -1,0 +1,123 @@
+{
+  "name": "ShieldCar - Leads WhatsApp",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "hubspot-lead",
+        "options": {}
+      },
+      "id": "webhook-node",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "shieldcar-leads"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "nome_completo",
+              "value": "={{ $json.firstname }} {{ $json.lastname }}"
+            },
+            {
+              "name": "telefone",
+              "value": "={{ $json.phone }}"
+            },
+            {
+              "name": "email",
+              "value": "={{ $json.email }}"
+            },
+            {
+              "name": "cidade",
+              "value": "={{ $json.city }}"
+            },
+            {
+              "name": "estado",
+              "value": "={{ $json.state }}"
+            },
+            {
+              "name": "veiculo_info",
+              "value": "={{ $json.marca_veiculo }} {{ $json.modelo_veiculo }} {{ $json.ano_veiculo }}"
+            },
+            {
+              "name": "placa",
+              "value": "={{ $json.placa_veiculo }}"
+            },
+            {
+              "name": "tipo",
+              "value": "={{ $json.tipo_veiculo }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "format-data",
+      "name": "Formatar Dados",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.whatsapp.com/send",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "SEU_NUMERO_WHATSAPP_GRUPO"
+            },
+            {
+              "name": "body",
+              "value": "🚗 *NOVO LEAD - ShieldCar Blumenau*\n\n👤 *Cliente:* {{ $json.nome_completo }}\n📱 *Telefone:* {{ $json.telefone }}\n📧 *Email:* {{ $json.email }}\n📍 *Localização:* {{ $json.cidade }}/{{ $json.estado }}\n\n🚘 *Veículo:*\n• Tipo: {{ $json.tipo }}\n• Modelo: {{ $json.veiculo_info }}\n• Placa: {{ $json.placa }}\n\n⏰ *Recebido em:* {{ $now.toLocaleString('pt-BR') }}\n\n✅ Entre em contato em até 2 minutos!"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "whatsapp-node",
+      "name": "Enviar WhatsApp",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [650, 300],
+      "notes": "Configure com sua API do WhatsApp Business ou Evolution API"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Formatar Dados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatar Dados": {
+      "main": [
+        [
+          {
+            "node": "Enviar WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {},
+  "versionId": "1",
+  "id": "shieldcar-webhook",
+  "meta": {
+    "instanceId": "shieldcar"
+  },
+  "tags": []
+}
